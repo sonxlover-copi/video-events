@@ -1,0 +1,16 @@
+# Координаты концов линии нормированы относительно ширины и высоты кадра.
+# Этот вертикальный отрезок пересекает основной поток в примере.
+model: ../models/yolo11n.pt
+device: auto
+classes:
+  - car
+  - motorcycle
+  - bus
+  - truck
+confidence_threshold: 0.05
+image_size: 640
+tracker: bytetrack_lowconf_buffer30.yaml
+line_deadband_px: 8
+line:
+  start: [0.5, 0.2]
+  end: [0.5, 0.9]

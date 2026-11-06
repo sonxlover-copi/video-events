@@ -1,0 +1,296 @@
+{
+  "sequence": "MVI_40201",
+  "data_role": "development clip; use a separate sequence for final evaluation",
+  "video": {
+    "file": "MVI_40201.mp4",
+    "width": 960,
+    "height": 540,
+    "fps": 25.0,
+    "frames": 925
+  },
+  "evaluation": {
+    "classes": [
+      "car"
+    ],
+    "tolerance_s": 1.0,
+    "spatial_tolerance_px": 40.0,
+    "class_aliases": {
+      "van": "car"
+    },
+    "line_start_px": [
+      480,
+      108
+    ],
+    "line_end_px": [
+      480,
+      485
+    ],
+    "deadband_px": 8.0,
+    "matching": "one-to-one by class and direction within time and spatial tolerances",
+    "ground_truth": "derived from manually annotated XML tracks"
+  },
+  "overall": {
+    "ground_truth": 67,
+    "predicted": 52,
+    "TP": 50,
+    "FP": 2,
+    "FN": 17,
+    "precision": 0.962,
+    "recall": 0.746
+  },
+  "by_direction": {
+    "negative_to_positive": {
+      "ground_truth": 19,
+      "predicted": 7,
+      "TP": 7,
+      "FP": 0,
+      "FN": 12,
+      "precision": 1.0,
+      "recall": 0.368
+    },
+    "positive_to_negative": {
+      "ground_truth": 48,
+      "predicted": 45,
+      "TP": 43,
+      "FP": 2,
+      "FN": 5,
+      "precision": 0.956,
+      "recall": 0.896
+    }
+  },
+  "by_class_and_direction": {
+    "car/negative_to_positive": {
+      "ground_truth": 19,
+      "predicted": 7,
+      "TP": 7,
+      "FP": 0,
+      "FN": 12,
+      "precision": 1.0,
+      "recall": 0.368
+    },
+    "car/positive_to_negative": {
+      "ground_truth": 48,
+      "predicted": 45,
+      "TP": 43,
+      "FP": 2,
+      "FN": 5,
+      "precision": 0.956,
+      "recall": 0.896
+    }
+  },
+  "missed_events": [
+    {
+      "confirmation_frame_index": 17,
+      "crossing_frame_estimate": 15.49,
+      "timestamp_s": 0.62,
+      "track_id": 3,
+      "class_name": "car",
+      "confidence": 1.0,
+      "direction": "positive_to_negative",
+      "line_intersection_x_px": 480.0,
+      "line_intersection_y_px": 459.96
+    },
+    {
+      "confirmation_frame_index": 70,
+      "crossing_frame_estimate": 68.66,
+      "timestamp_s": 2.746,
+      "track_id": 6,
+      "class_name": "car",
+      "confidence": 1.0,
+      "direction": "positive_to_negative",
+      "line_intersection_x_px": 480.0,
+      "line_intersection_y_px": 287.75
+    },
+    {
+      "confirmation_frame_index": 105,
+      "crossing_frame_estimate": 102.77,
+      "timestamp_s": 4.111,
+      "track_id": 17,
+      "class_name": "car",
+      "confidence": 1.0,
+      "direction": "negative_to_positive",
+      "line_intersection_x_px": 480.0,
+      "line_intersection_y_px": 111.39
+    },
+    {
+      "confirmation_frame_index": 110,
+      "crossing_frame_estimate": 108.78,
+      "timestamp_s": 4.351,
+      "track_id": 12,
+      "class_name": "car",
+      "confidence": 1.0,
+      "direction": "positive_to_negative",
+      "line_intersection_x_px": 480.0,
+      "line_intersection_y_px": 442.75
+    },
+    {
+      "confirmation_frame_index": 133,
+      "crossing_frame_estimate": 131.53,
+      "timestamp_s": 5.261,
+      "track_id": 27,
+      "class_name": "car",
+      "confidence": 1.0,
+      "direction": "negative_to_positive",
+      "line_intersection_x_px": 480.0,
+      "line_intersection_y_px": 110.63
+    },
+    {
+      "confirmation_frame_index": 178,
+      "crossing_frame_estimate": 176.66,
+      "timestamp_s": 7.066,
+      "track_id": 33,
+      "class_name": "car",
+      "confidence": 1.0,
+      "direction": "negative_to_positive",
+      "line_intersection_x_px": 480.0,
+      "line_intersection_y_px": 109.13
+    },
+    {
+      "confirmation_frame_index": 226,
+      "crossing_frame_estimate": 224.17,
+      "timestamp_s": 8.967,
+      "track_id": 37,
+      "class_name": "car",
+      "confidence": 1.0,
+      "direction": "negative_to_positive",
+      "line_intersection_x_px": 480.0,
+      "line_intersection_y_px": 114.18
+    },
+    {
+      "confirmation_frame_index": 316,
+      "crossing_frame_estimate": 314.82,
+      "timestamp_s": 12.593,
+      "track_id": 48,
+      "class_name": "car",
+      "confidence": 1.0,
+      "direction": "negative_to_positive",
+      "line_intersection_x_px": 480.0,
+      "line_intersection_y_px": 119.9
+    },
+    {
+      "confirmation_frame_index": 381,
+      "crossing_frame_estimate": 379.66,
+      "timestamp_s": 15.186,
+      "track_id": 57,
+      "class_name": "car",
+      "confidence": 1.0,
+      "direction": "negative_to_positive",
+      "line_intersection_x_px": 480.0,
+      "line_intersection_y_px": 121.42
+    },
+    {
+      "confirmation_frame_index": 411,
+      "crossing_frame_estimate": 409.08,
+      "timestamp_s": 16.363,
+      "track_id": 62,
+      "class_name": "car",
+      "confidence": 1.0,
+      "direction": "negative_to_positive",
+      "line_intersection_x_px": 480.0,
+      "line_intersection_y_px": 121.33
+    },
+    {
+      "confirmation_frame_index": 659,
+      "crossing_frame_estimate": 657.72,
+      "timestamp_s": 26.309,
+      "track_id": 88,
+      "class_name": "car",
+      "confidence": 1.0,
+      "direction": "negative_to_positive",
+      "line_intersection_x_px": 480.0,
+      "line_intersection_y_px": 115.9
+    },
+    {
+      "confirmation_frame_index": 685,
+      "crossing_frame_estimate": 683.35,
+      "timestamp_s": 27.334,
+      "track_id": 92,
+      "class_name": "car",
+      "confidence": 1.0,
+      "direction": "negative_to_positive",
+      "line_intersection_x_px": 480.0,
+      "line_intersection_y_px": 115.12
+    },
+    {
+      "confirmation_frame_index": 710,
+      "crossing_frame_estimate": 708.19,
+      "timestamp_s": 28.328,
+      "track_id": 98,
+      "class_name": "car",
+      "confidence": 1.0,
+      "direction": "negative_to_positive",
+      "line_intersection_x_px": 480.0,
+      "line_intersection_y_px": 117.77
+    },
+    {
+      "confirmation_frame_index": 810,
+      "crossing_frame_estimate": 808.66,
+      "timestamp_s": 32.346,
+      "track_id": 110,
+      "class_name": "car",
+      "confidence": 1.0,
+      "direction": "negative_to_positive",
+      "line_intersection_x_px": 480.0,
+      "line_intersection_y_px": 113.37
+    },
+    {
+      "confirmation_frame_index": 847,
+      "crossing_frame_estimate": 846.02,
+      "timestamp_s": 33.841,
+      "track_id": 112,
+      "class_name": "car",
+      "confidence": 1.0,
+      "direction": "positive_to_negative",
+      "line_intersection_x_px": 480.0,
+      "line_intersection_y_px": 279.59
+    },
+    {
+      "confirmation_frame_index": 902,
+      "crossing_frame_estimate": 900.57,
+      "timestamp_s": 36.023,
+      "track_id": 121,
+      "class_name": "car",
+      "confidence": 1.0,
+      "direction": "negative_to_positive",
+      "line_intersection_x_px": 480.0,
+      "line_intersection_y_px": 115.73
+    },
+    {
+      "confirmation_frame_index": 924,
+      "crossing_frame_estimate": 923.46,
+      "timestamp_s": 36.938,
+      "track_id": 119,
+      "class_name": "car",
+      "confidence": 1.0,
+      "direction": "positive_to_negative",
+      "line_intersection_x_px": 480.0,
+      "line_intersection_y_px": 467.06
+    }
+  ],
+  "extra_events": [
+    {
+      "event_id": 10,
+      "confirmation_frame_index": 186,
+      "crossing_frame_estimate": 184.56,
+      "timestamp_s": 7.382,
+      "track_id": 75,
+      "class_name": "car",
+      "confidence": 0.61343,
+      "direction": "positive_to_negative",
+      "line_intersection_x_px": 480.0,
+      "line_intersection_y_px": 471.82
+    },
+    {
+      "event_id": 17,
+      "confirmation_frame_index": 310,
+      "crossing_frame_estimate": 308.87,
+      "timestamp_s": 12.355,
+      "track_id": 193,
+      "class_name": "car",
+      "confidence": 0.74487,
+      "direction": "positive_to_negative",
+      "line_intersection_x_px": 480.0,
+      "line_intersection_y_px": 480.25
+    }
+  ]
+}

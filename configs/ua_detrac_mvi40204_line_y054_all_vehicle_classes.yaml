@@ -1,0 +1,16 @@
+# Пример для проверки всех классов транспорта на сцене MVI_40204.
+model: ../models/yolo11n.pt
+device: auto
+classes:
+  - car
+  - motorcycle
+  - bus
+  - truck
+confidence_threshold: 0.05
+image_size: 640
+tracker: bytetrack_lowconf_buffer30.yaml
+line_deadband_px: 8
+# Верхний конец линии соответствует примерно 54 px в кадре 960×540.
+line:
+  start: [0.5, 0.1]
+  end: [0.5, 0.9]

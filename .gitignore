@@ -1,0 +1,16 @@
+.venv/
+.vscode/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+.env
+.env.*
+!.env.example
+runs/
+*.pt
+*.onnx
+data/
+dist/
+build/
+*.egg-info/
+.ipynb_checkpoints/

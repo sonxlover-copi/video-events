@@ -1,0 +1,16 @@
+# Пример настройки для городской сцены MVI_40141; проверь линию на исходном видео.
+model: ../models/yolo11n.pt
+device: auto
+classes:
+  - car
+  - motorcycle
+  - bus
+  - truck
+confidence_threshold: 0.05
+image_size: 640
+tracker: bytetrack_lowconf_buffer30.yaml
+line_deadband_px: 8
+# Горизонтальная линия примерно на высоте 297 px в кадре 960×540.
+line:
+  start: [0.2, 0.55]
+  end: [0.8, 0.55]
