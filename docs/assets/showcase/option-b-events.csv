@@ -1,0 +1,16 @@
+event_id,confirmation_frame_index,crossing_frame_estimate,timestamp_s,track_id,class_name,confidence,direction,line_intersection_x_px,line_intersection_y_px,vehicle_color,color_support,color_samples,plate_text,plate_confidence,plate_support,plate_observations,plate_status
+1,9,6.93,0.462,1,car,0.90014,negative_to_positive,1296.51,842.0,blue,1.0,2,GJ06EPD,0.999,1.0,2,confirmed
+2,21,18.87,1.258,3,car,0.88451,negative_to_positive,580.78,842.0,unknown,1.0,5,LN15ZZC,0.9998,1.0,5,confirmed
+3,48,45.92,3.061,6,car,0.90803,negative_to_positive,639.68,842.0,unknown,0.9,10,,0.0,0.0,0,not_read
+4,56,53.96,3.597,2,car,0.91122,negative_to_positive,1313.48,842.0,unknown,1.0,12,DA07CLX,0.9994,0.917,11,confirmed
+5,97,93.26,6.217,9,bus,0.80449,negative_to_positive,618.94,842.0,blue,1.0,20,,0.0,1.0,1,unconfirmed
+6,112,110.34,7.356,14,car,0.63169,negative_to_positive,1220.21,842.0,blue,1.0,23,EY09VWS,0.9816,0.667,14,confirmed
+7,132,129.95,8.663,355,car,0.51683,negative_to_positive,519.82,842.0,unknown,0.5,2,,0.0,0.0,0,not_read
+8,141,138.37,9.225,206,car,0.81119,negative_to_positive,572.75,842.0,unknown,0.538,13,,0.0,0.0,0,not_read
+9,142,140.1,9.34,343,car,0.51252,negative_to_positive,1236.31,842.0,blue,0.6,5,,0.0,0.0,0,not_read
+10,167,165.68,11.045,281,car,0.70083,negative_to_positive,521.16,842.0,blue,1.0,13,,0.0,0.0,0,not_read
+11,185,183.05,12.203,37,car,0.86946,negative_to_positive,621.8,842.0,blue,0.714,35,,0.0,0.0,0,not_read
+12,187,185.14,12.343,103,car,0.76321,negative_to_positive,1269.23,842.0,unknown,0.862,29,BP63LYH,0.9999,0.714,5,confirmed
+13,213,211.67,14.111,254,car,0.71067,negative_to_positive,523.02,842.0,blue,1.0,24,,0.0,0.0,0,not_read
+14,214,211.79,14.119,543,car,0.3049,negative_to_positive,711.47,842.0,unknown,0.8,5,,0.0,0.0,0,not_read
+15,215,212.31,14.154,443,car,0.67157,negative_to_positive,661.59,842.0,unknown,1.0,11,,0.0,0.0,0,not_read

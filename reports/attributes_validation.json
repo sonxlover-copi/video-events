@@ -1,0 +1,210 @@
+{
+  "checked_on": "2026-11-08",
+  "software": {
+    "video-events": "0.2.0",
+    "fast-alpr": "0.4.0",
+    "fast-plate-ocr": "1.1.0",
+    "open-image-models": "0.6.0",
+    "onnxruntime": "1.31.1",
+    "opencv-python": "4.10.0.84",
+    "numpy": "1.26.4"
+  },
+  "hardware": {
+    "measured_on": "2026-11-08",
+    "os": "Linux-7.0.0-42-generic-x86_64-with-glibc2.43",
+    "cpu": "13th Gen Intel(R) Core(TM) i7-13650HX",
+    "gpu": "NVIDIA GeForce RTX 5060 Laptop GPU",
+    "driver": "580.178.04",
+    "python": "3.12.16",
+    "torch_cuda": "12.8",
+    "packages": {
+      "torch": "2.8.0+cu128",
+      "torchvision": "0.23.0+cu128",
+      "ultralytics": "8.3.253",
+      "numpy": "1.26.4",
+      "opencv-python": "4.10.0.84",
+      "pillow": "13.0.0"
+    },
+    "ffmpeg": "ffmpeg version 8.0.1-3ubuntu2 Copyright (c) 2000-2025 the FFmpeg developers"
+  },
+  "plate_models": {
+    "detector": "yolo-v9-t-384-license-plate-end2end",
+    "ocr": "cct-xs-v2-global-model",
+    "provider": "CPUExecutionProvider",
+    "format": "generic",
+    "min_confidence": 0.85,
+    "files": [
+      {
+        "name": "yolo-v9-t-384-license-plates-end2end.onnx",
+        "sha256": "888397b96d761c89db40bc9c305838e8652660f5e282c2cadebbe8d2951a77a8"
+      },
+      {
+        "name": "cct_xs_v2_global.onnx",
+        "sha256": "8031afb5fdc6b4d80462c9d542f1284ebd2cfddf5dbacd62609848d7e2855f44"
+      },
+      {
+        "name": "cct_xs_v2_global_plate_config.yaml",
+        "sha256": "0335c74a305173bb6f393efed0fde03cadeaa0b649ed8e19f431016d8232d0a6"
+      }
+    ]
+  },
+  "photo_check": {
+    "source": "https://raw.githubusercontent.com/ankandrew/fast-alpr/master/assets/test_image.png",
+    "sha256": "c154c3e0873fa35076ecf4f611d345c092450217fe75737b2a77183018218255",
+    "test_type": "scripted pan of one photograph; integration check, not a real-motion accuracy benchmark",
+    "expected_plate": "5AU5341",
+    "expected_visible_color": "gray",
+    "single_image_result": [
+      {
+        "text": "5AU5341",
+        "confidence": 0.9997858822345733,
+        "detector_confidence": 0.8428492546081543,
+        "box": [
+          307,
+          187,
+          387,
+          210
+        ]
+      }
+    ],
+    "video_events": [
+      {
+        "event_id": "1",
+        "confirmation_frame_index": "56",
+        "crossing_frame_estimate": "52.61",
+        "timestamp_s": "4.384",
+        "track_id": "1",
+        "class_name": "car",
+        "confidence": "0.88702",
+        "direction": "positive_to_negative",
+        "line_intersection_x_px": "400.0",
+        "line_intersection_y_px": "222.09",
+        "vehicle_color": "gray",
+        "color_support": "1.0",
+        "color_samples": "10",
+        "plate_text": "5AU5341",
+        "plate_confidence": "0.9998",
+        "plate_support": "1.0",
+        "plate_observations": "10",
+        "plate_status": "confirmed"
+      }
+    ],
+    "confirmed_track": {
+      "track_id": "1",
+      "class_name": "car",
+      "first_seen_s": "0.0",
+      "last_seen_s": "7.917",
+      "plate_attempts": "16",
+      "vehicle_color": "gray",
+      "color_support": "1.0",
+      "color_samples": "16",
+      "plate_text": "5AU5341",
+      "plate_confidence": "0.9998",
+      "plate_support": "1.0",
+      "plate_observations": "16",
+      "plate_status": "confirmed"
+    },
+    "video": {
+      "width": 800,
+      "height": 450,
+      "source_fps": 12.0,
+      "output_fps": 12.0,
+      "fps_fallback_used": false,
+      "reported_frame_count": 96,
+      "processed_frame_count": 96,
+      "processed_duration_s": 8.0,
+      "codec": "h264"
+    },
+    "performance": {
+      "model_load_s": 0.023,
+      "processing_s": 2.689,
+      "end_to_end_fps_excluding_model_load": 35.697,
+      "note": "Processing time includes video decode, inference, overlay rendering, and encoding."
+    }
+  },
+  "traffic_check": {
+    "sequence": "MVI_40204",
+    "config": "configs/ua_detrac_mvi40204_line_y054_lowconf.yaml",
+    "video": {
+      "width": 960,
+      "height": 540,
+      "source_fps": 25.0,
+      "output_fps": 25.0,
+      "fps_fallback_used": false,
+      "reported_frame_count": 1225,
+      "processed_frame_count": 1225,
+      "processed_duration_s": 49.0,
+      "codec": "h264"
+    },
+    "attributes": {
+      "colors": true,
+      "plates": true,
+      "interval": 10,
+      "plate_min_confidence": 0.85,
+      "plate_min_observations": 2,
+      "plate_format": "generic",
+      "initialization_s": 0.11,
+      "vehicles_csv": "vehicles.csv",
+      "tracked_ids": 259,
+      "by_color": {
+        "gray": 43,
+        "white": 16,
+        "unknown": 196,
+        "red": 3,
+        "green": 1
+      },
+      "confirmed_plates": 0,
+      "plate_models": {
+        "detector": "yolo-v9-t-384-license-plate-end2end",
+        "ocr": "cct-xs-v2-global-model",
+        "provider": "CPUExecutionProvider",
+        "format": "generic",
+        "min_confidence": 0.85,
+        "files": [
+          {
+            "name": "yolo-v9-t-384-license-plates-end2end.onnx",
+            "sha256": "888397b96d761c89db40bc9c305838e8652660f5e282c2cadebbe8d2951a77a8"
+          },
+          {
+            "name": "cct_xs_v2_global.onnx",
+            "sha256": "8031afb5fdc6b4d80462c9d542f1284ebd2cfddf5dbacd62609848d7e2855f44"
+          },
+          {
+            "name": "cct_xs_v2_global_plate_config.yaml",
+            "sha256": "0335c74a305173bb6f393efed0fde03cadeaa0b649ed8e19f431016d8232d0a6"
+          }
+        ]
+      },
+      "event_values": "observations available at confirmation_frame_index",
+      "vehicle_values": "final observations for each tracker ID"
+    },
+    "performance": {
+      "model_load_s": 0.023,
+      "processing_s": 29.22,
+      "end_to_end_fps_excluding_model_load": 41.924,
+      "note": "Processing time includes video decode, inference, overlay rendering, and encoding."
+    },
+    "all_baseline_event_fields_unchanged": true,
+    "evaluation": {
+      "ground_truth": 134,
+      "predicted": 117,
+      "TP": 116,
+      "FP": 1,
+      "FN": 18,
+      "precision": 0.991,
+      "recall": 0.866,
+      "f1": 0.924,
+      "count_error": -17,
+      "absolute_count_error": 17,
+      "relative_count_error": -0.1269
+    },
+    "note": "No confirmed plates on this distant scene. Color predictions lack independent ground truth."
+  },
+  "checks": {
+    "unit_tests": 35,
+    "network_disabled_cached_inference": "passed",
+    "default_and_plates_environment_switch": "passed",
+    "isolated_numpy_opencv_tests": "passed",
+    "invalid_cli_arguments_and_existing_output_protection": "passed"
+  }
+}

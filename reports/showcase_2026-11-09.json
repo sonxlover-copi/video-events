@@ -1,0 +1,283 @@
+{
+  "checked_on": "2026-11-09",
+  "source": {
+    "author": "Mike Bird",
+    "title": "Traffic Flow In The Highway",
+    "page": "https://www.pexels.com/video/traffic-flow-in-the-highway-2103099/",
+    "download": "https://videos.pexels.com/video-files/2103099/2103099-uhd_3840_2160_30fps.mp4",
+    "license": "https://www.pexels.com/license/",
+    "source_sha256": "247a283c641a514a6947999a64f7fd90ce28755bff491bb9c025b708ccc57d3d"
+  },
+  "config": "configs/pexels_2103099_showcase.yaml",
+  "attribute_interval": 5,
+  "options": [
+    {
+      "name": "a",
+      "source_start_s": 0,
+      "duration_s": 12,
+      "resolution": [
+        1600,
+        900
+      ],
+      "fps": 15,
+      "events": 10,
+      "events_with_confirmed_plate": 4,
+      "manually_spot_checked_plates": [
+        "MW51VSU",
+        "GX15OGJ",
+        "WR02FKD",
+        "EY61NBG"
+      ],
+      "full_18s_run_summary": {
+        "schema_version": 2,
+        "input_file": "pexels-2103099-a.mp4",
+        "video": {
+          "width": 1920,
+          "height": 1080,
+          "source_fps": 15.0,
+          "output_fps": 15.0,
+          "fps_fallback_used": false,
+          "reported_frame_count": 270,
+          "processed_frame_count": 270,
+          "processed_duration_s": 18.0,
+          "codec": "h264"
+        },
+        "detector": {
+          "model": "yolo11n.pt",
+          "tracker": "bytetrack.yaml",
+          "device": "0",
+          "classes": [
+            "car",
+            "motorcycle",
+            "bus",
+            "truck"
+          ],
+          "confidence_threshold": 0.25,
+          "image_size": 960
+        },
+        "line": {
+          "start_normalized": [
+            0.22,
+            0.78
+          ],
+          "end_normalized": [
+            0.83,
+            0.78
+          ],
+          "deadband_px": 8.0,
+          "direction_definition": "negative_to_positive is the change from negative to positive signed distance relative to the oriented line start-to-end"
+        },
+        "events": {
+          "total": 14,
+          "by_class": {
+            "car": {
+              "negative_to_positive": 13,
+              "positive_to_negative": 0,
+              "total": 13
+            },
+            "motorcycle": {
+              "negative_to_positive": 0,
+              "positive_to_negative": 0,
+              "total": 0
+            },
+            "bus": {
+              "negative_to_positive": 1,
+              "positive_to_negative": 0,
+              "total": 1
+            },
+            "truck": {
+              "negative_to_positive": 0,
+              "positive_to_negative": 0,
+              "total": 0
+            }
+          },
+          "csv": "events.csv"
+        },
+        "performance": {
+          "model_load_s": 0.037,
+          "processing_s": 34.718,
+          "end_to_end_fps_excluding_model_load": 7.777,
+          "note": "Processing time includes video decode, inference, overlay rendering, and encoding."
+        },
+        "annotated_video": "annotated.mp4",
+        "attributes": {
+          "colors": true,
+          "plates": true,
+          "interval": 5,
+          "plate_min_confidence": 0.85,
+          "plate_min_observations": 2,
+          "plate_format": "generic",
+          "initialization_s": 0.213,
+          "vehicles_csv": "vehicles.csv",
+          "tracked_ids": 126,
+          "by_color": {
+            "blue": 39,
+            "unknown": 76,
+            "white": 1,
+            "gray": 9,
+            "black": 1
+          },
+          "confirmed_plates": 14,
+          "plate_models": {
+            "detector": "yolo-v9-t-384-license-plate-end2end",
+            "ocr": "cct-xs-v2-global-model",
+            "provider": "CPUExecutionProvider",
+            "format": "generic",
+            "min_confidence": 0.85,
+            "files": [
+              {
+                "name": "yolo-v9-t-384-license-plates-end2end.onnx",
+                "sha256": "888397b96d761c89db40bc9c305838e8652660f5e282c2cadebbe8d2951a77a8"
+              },
+              {
+                "name": "cct_xs_v2_global.onnx",
+                "sha256": "8031afb5fdc6b4d80462c9d542f1284ebd2cfddf5dbacd62609848d7e2855f44"
+              },
+              {
+                "name": "cct_xs_v2_global_plate_config.yaml",
+                "sha256": "0335c74a305173bb6f393efed0fde03cadeaa0b649ed8e19f431016d8232d0a6"
+              }
+            ]
+          },
+          "event_values": "observations available at confirmation_frame_index",
+          "vehicle_values": "final observations for each tracker ID"
+        }
+      },
+      "note": "Manually spot-checked examples are not a full accuracy evaluation. Confirmed OCR may still be incorrect."
+    },
+    {
+      "name": "b",
+      "source_start_s": 26,
+      "duration_s": 16,
+      "resolution": [
+        1600,
+        900
+      ],
+      "fps": 15,
+      "events": 15,
+      "events_with_confirmed_plate": 5,
+      "manually_spot_checked_plates": [
+        "GJ06EPD",
+        "LN15ZZC",
+        "DA07CLX",
+        "EY09VWS"
+      ],
+      "full_18s_run_summary": {
+        "schema_version": 2,
+        "input_file": "pexels-2103099-b.mp4",
+        "video": {
+          "width": 1920,
+          "height": 1080,
+          "source_fps": 15.0,
+          "output_fps": 15.0,
+          "fps_fallback_used": false,
+          "reported_frame_count": 270,
+          "processed_frame_count": 270,
+          "processed_duration_s": 18.0,
+          "codec": "h264"
+        },
+        "detector": {
+          "model": "yolo11n.pt",
+          "tracker": "bytetrack.yaml",
+          "device": "0",
+          "classes": [
+            "car",
+            "motorcycle",
+            "bus",
+            "truck"
+          ],
+          "confidence_threshold": 0.25,
+          "image_size": 960
+        },
+        "line": {
+          "start_normalized": [
+            0.22,
+            0.78
+          ],
+          "end_normalized": [
+            0.83,
+            0.78
+          ],
+          "deadband_px": 8.0,
+          "direction_definition": "negative_to_positive is the change from negative to positive signed distance relative to the oriented line start-to-end"
+        },
+        "events": {
+          "total": 19,
+          "by_class": {
+            "car": {
+              "negative_to_positive": 18,
+              "positive_to_negative": 0,
+              "total": 18
+            },
+            "motorcycle": {
+              "negative_to_positive": 0,
+              "positive_to_negative": 0,
+              "total": 0
+            },
+            "bus": {
+              "negative_to_positive": 1,
+              "positive_to_negative": 0,
+              "total": 1
+            },
+            "truck": {
+              "negative_to_positive": 0,
+              "positive_to_negative": 0,
+              "total": 0
+            }
+          },
+          "csv": "events.csv"
+        },
+        "performance": {
+          "model_load_s": 0.024,
+          "processing_s": 33.324,
+          "end_to_end_fps_excluding_model_load": 8.102,
+          "note": "Processing time includes video decode, inference, overlay rendering, and encoding."
+        },
+        "annotated_video": "annotated.mp4",
+        "attributes": {
+          "colors": true,
+          "plates": true,
+          "interval": 5,
+          "plate_min_confidence": 0.85,
+          "plate_min_observations": 2,
+          "plate_format": "generic",
+          "initialization_s": 0.125,
+          "vehicles_csv": "vehicles.csv",
+          "tracked_ids": 135,
+          "by_color": {
+            "blue": 48,
+            "unknown": 74,
+            "gray": 10,
+            "red": 1,
+            "white": 2
+          },
+          "confirmed_plates": 7,
+          "plate_models": {
+            "detector": "yolo-v9-t-384-license-plate-end2end",
+            "ocr": "cct-xs-v2-global-model",
+            "provider": "CPUExecutionProvider",
+            "format": "generic",
+            "min_confidence": 0.85,
+            "files": [
+              {
+                "name": "yolo-v9-t-384-license-plates-end2end.onnx",
+                "sha256": "888397b96d761c89db40bc9c305838e8652660f5e282c2cadebbe8d2951a77a8"
+              },
+              {
+                "name": "cct_xs_v2_global.onnx",
+                "sha256": "8031afb5fdc6b4d80462c9d542f1284ebd2cfddf5dbacd62609848d7e2855f44"
+              },
+              {
+                "name": "cct_xs_v2_global_plate_config.yaml",
+                "sha256": "0335c74a305173bb6f393efed0fde03cadeaa0b649ed8e19f431016d8232d0a6"
+              }
+            ]
+          },
+          "event_values": "observations available at confirmation_frame_index",
+          "vehicle_values": "final observations for each tracker ID"
+        }
+      },
+      "note": "Manually spot-checked examples are not a full accuracy evaluation. Confirmed OCR may still be incorrect."
+    }
+  ]
+}

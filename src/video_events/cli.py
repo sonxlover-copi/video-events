@@ -11,15 +11,22 @@ import shutil
 import subprocess
 import sys
 import time
-from collections import defaultdict
+from collections import Counter, defaultdict
+from dataclasses import asdict
 from pathlib import Path
 from typing import Any
 
 import cv2
 from ultralytics import YOLO
 
+from video_events.attributes import (
+    ATTRIBUTE_FIELDS,
+    AttributeOptions,
+    VehicleAttributes,
+)
 from video_events.config import CounterConfig, load_config
 from video_events.crossing import LineCrossingCounter
+from video_events.plates import PlateReader, prepare_plate_models
 
 # Путь по умолчанию привязан к репозиторию, а не к текущей папке терминала.
 DEFAULT_CONFIG = Path(__file__).resolve().parents[2] / "configs" / "traffic.yaml"
@@ -243,20 +250,26 @@ def _encode_h264(video_path: Path) -> str:
 
 
 def count_video(
-    input_path: Path, config: CounterConfig, output_dir: Path
+    input_path: Path,
+    config: CounterConfig,
+    output_dir: Path,
+    attribute_options: AttributeOptions | None = None,
 ) -> dict[str, Any]:
     """Обработать видео целиком и сохранить видео с разметкой и отчёты."""
     input_path = input_path.expanduser().resolve()
     output_dir = output_dir.expanduser().resolve()
-    output_dir.mkdir(parents=True, exist_ok=True)
+    options = attribute_options or AttributeOptions()
+    if shutil.which("ffmpeg") is None:
+        raise ValueError("FFmpeg is required. Install it before processing the video.")
 
     annotated_path = output_dir / "annotated.mp4"
     events_path = output_dir / "events.csv"
     summary_path = output_dir / "summary.json"
+    vehicles_path = output_dir / "vehicles.csv"
     # Не перезаписываем предыдущий запуск: проще выбрать новую пустую папку.
     existing_outputs = [
         path.name
-        for path in (annotated_path, events_path, summary_path)
+        for path in (annotated_path, events_path, summary_path, vehicles_path)
         if path.exists()
     ]
     if existing_outputs:
@@ -268,9 +281,16 @@ def count_video(
         annotated_path.resolve(),
         events_path.resolve(),
         summary_path.resolve(),
+        vehicles_path.resolve(),
     }:
         raise ValueError("Input video must not be one of the output files")
 
+    # Проверяем готовность OCR до создания выходных файлов. Во время обработки
+    # модели не скачиваются: их заранее подготавливает команда prepare-plates.
+    attribute_started = time.perf_counter()
+    attributes = VehicleAttributes(options) if options.enabled else None
+    attribute_init_s = time.perf_counter() - attribute_started
+    output_dir.mkdir(parents=True, exist_ok=True)
     capture = _video_capture(input_path)
     writer: cv2.VideoWriter | None = None
     try:
@@ -325,7 +345,10 @@ def count_video(
         frames_processed = 0
         process_started = time.perf_counter()
         with events_path.open("w", newline="", encoding="utf-8") as events_file:
-            event_writer = csv.DictWriter(events_file, fieldnames=EVENT_FIELDS)
+            event_fields = (
+                EVENT_FIELDS + ATTRIBUTE_FIELDS if attributes else EVENT_FIELDS
+            )
+            event_writer = csv.DictWriter(events_file, fieldnames=event_fields)
             event_writer.writeheader()
 
             # Первый кадр уже прочитан выше; дальше читаем следующий только после
@@ -343,8 +366,9 @@ def count_video(
                     verbose=False,
                 )
                 result = results[0]
-                annotated = result.plot()
+                annotated = result.plot(labels=attributes is None)
                 frame_event = None
+                attribute_labels = []
                 boxes = result.boxes
                 # Без track ID нельзя отличить новое событие от повторной детекции.
                 if boxes is not None and boxes.id is not None and len(boxes) > 0:
@@ -363,6 +387,14 @@ def count_video(
                             (float(box[0]) + float(box[2])) / 2,
                             (float(box[1]) + float(box[3])) / 2,
                         )
+                        features = None
+                        if attributes is not None:
+                            features = attributes.update(
+                                frame, box, int(track_id), class_name, frames_processed
+                            )
+                            attribute_labels.append(
+                                (box, int(track_id), class_name, features)
+                            )
                         event = counter.update(
                             track_id=int(track_id),
                             class_name=class_name,
@@ -375,10 +407,22 @@ def count_video(
                             continue
                         events_written += 1
                         event_row = {"event_id": events_written, **event}
+                        if features is not None:
+                            # Снимок относится к моменту события. Более поздние
+                            # наблюдения доступны отдельно в vehicles.csv.
+                            event_row.update(features)
                         event_writer.writerow(event_row)
                         counts[(class_name, str(event["direction"]))] += 1
                         frame_event = event
 
+                # Подтверждённые номера рисуем последними: подписи соседних
+                # рамок не должны закрывать основной результат распознавания.
+                for box, track_id, class_name, features in sorted(
+                    attribute_labels, key=lambda item: bool(item[3]["plate_text"])
+                ):
+                    _draw_vehicle_attributes(
+                        annotated, box, track_id, class_name, features
+                    )
                 _draw_overlay(annotated, line, counts, frame_event)
                 writer.write(annotated)
                 frames_processed += 1
@@ -406,8 +450,23 @@ def count_video(
                 class_counts[direction] for direction in DIRECTIONS
             )
 
+        vehicle_rows = attributes.vehicle_rows(output_fps) if attributes else []
+        if attributes is not None:
+            vehicle_fields = (
+                "track_id",
+                "class_name",
+                "first_seen_s",
+                "last_seen_s",
+                "plate_attempts",
+                *ATTRIBUTE_FIELDS,
+            )
+            with vehicles_path.open("w", newline="", encoding="utf-8") as stream:
+                vehicle_writer = csv.DictWriter(stream, fieldnames=vehicle_fields)
+                vehicle_writer.writeheader()
+                vehicle_writer.writerows(vehicle_rows)
+
         summary = {
-            "schema_version": 1,
+            "schema_version": 2 if attributes else 1,
             "input_file": input_path.name,
             "video": {
                 "width": width,
@@ -456,6 +515,22 @@ def count_video(
             },
             "annotated_video": annotated_path.name,
         }
+        if attributes is not None:
+            summary["attributes"] = {
+                **asdict(options),
+                "initialization_s": round(attribute_init_s, 3),
+                "vehicles_csv": vehicles_path.name,
+                "tracked_ids": len(vehicle_rows),
+                "by_color": dict(Counter(row["vehicle_color"] for row in vehicle_rows)),
+                "confirmed_plates": sum(
+                    row["plate_status"] == "confirmed" for row in vehicle_rows
+                ),
+                "plate_models": attributes.reader.model_info()
+                if attributes.reader
+                else None,
+                "event_values": "observations available at confirmation_frame_index",
+                "vehicle_values": "final observations for each tracker ID",
+            }
         summary_path.write_text(
             json.dumps(summary, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
         )
@@ -464,6 +539,89 @@ def count_video(
         capture.release()
         if writer is not None:
             writer.release()
+
+
+def _draw_vehicle_attributes(
+    frame: Any,
+    box: list[float],
+    track_id: int,
+    class_name: str,
+    features: dict[str, str | int | float],
+) -> None:
+    """Нарисовать компактную подпись, не меняя исходный кадр для распознавания."""
+    label = f"ID {track_id} {class_name} / {features['vehicle_color']}"
+    if features["plate_text"]:
+        label += f" / {features['plate_text']}"
+    (text_width, text_height), baseline = cv2.getTextSize(
+        label, cv2.FONT_HERSHEY_SIMPLEX, 0.45, 1
+    )
+    height, width = frame.shape[:2]
+    x = max(0, min(round(box[0]), width - text_width - 8))
+    y = max(text_height + 6, min(round(box[1]) - 5, height - baseline - 3))
+    cv2.rectangle(
+        frame,
+        (x, y - text_height - 5),
+        (min(width - 1, x + text_width + 6), y + baseline + 2),
+        (20, 20, 20),
+        -1,
+    )
+    cv2.putText(
+        frame,
+        label,
+        (x + 3, y),
+        cv2.FONT_HERSHEY_SIMPLEX,
+        0.45,
+        (255, 255, 255),
+        1,
+        cv2.LINE_AA,
+    )
+
+
+def read_plate_image(
+    input_path: Path, output_dir: Path, plate_format: str, min_confidence: float
+) -> dict[str, Any]:
+    """Прочитать номера на фотографии без трекинга и контрольной линии."""
+    input_path = input_path.expanduser().resolve()
+    output_dir = output_dir.expanduser().resolve()
+    image_path, report_path = output_dir / "plates.jpg", output_dir / "plates.json"
+    if image_path.exists() or report_path.exists():
+        raise ValueError(
+            "Plate output files already exist. Choose a new output directory."
+        )
+    if not input_path.is_file():
+        raise ValueError(f"Input image does not exist: {input_path}")
+    image = cv2.imread(str(input_path))
+    if image is None:
+        raise ValueError(f"Could not decode image: {input_path}")
+    reader = PlateReader(plate_format, min_confidence)
+    readings = reader.read(image)
+    for reading in readings:
+        x1, y1, x2, y2 = reading.box
+        cv2.rectangle(image, (x1, y1), (x2, y2), (80, 230, 80), 2)
+        cv2.putText(
+            image,
+            reading.text,
+            (x1, max(20, y1 - 8)),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.7,
+            (80, 230, 80),
+            2,
+            cv2.LINE_AA,
+        )
+    report = {
+        "input_file": input_path.name,
+        "plates": [asdict(reading) for reading in readings],
+        "status": "single_image_candidates" if readings else "not_read",
+        "models": reader.model_info(),
+        "annotated_image": image_path.name,
+    }
+    output_dir.mkdir(parents=True, exist_ok=True)
+    if not cv2.imwrite(str(image_path), image):
+        raise ValueError(f"Could not save annotated image: {image_path}")
+    report_path.write_text(
+        json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+    )
+    return report
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -499,6 +657,52 @@ def _parser() -> argparse.ArgumentParser:
         required=True,
         help="directory for annotated.mp4, events.csv, and summary.json",
     )
+    count_parser.add_argument(
+        "--colors", action="store_true", help="estimate vehicle body colors"
+    )
+    count_parser.add_argument(
+        "--plates", action="store_true", help="read and confirm license plates"
+    )
+    count_parser.add_argument(
+        "--attribute-interval",
+        type=int,
+        default=10,
+        help="sample each track every N frames (default: 10)",
+    )
+    count_parser.add_argument(
+        "--plate-min-observations",
+        type=int,
+        default=2,
+        help="matching readings required to confirm a plate (at least 2)",
+    )
+    count_parser.add_argument(
+        "--plate-min-confidence",
+        type=float,
+        default=0.85,
+        help="minimum mean OCR confidence (default: 0.85)",
+    )
+    count_parser.add_argument(
+        "--plate-format",
+        choices=("generic", "ru"),
+        default="generic",
+        help="generic Latin plates or standard Russian car plates",
+    )
+    prepare_parser = subparsers.add_parser(
+        "prepare-plates",
+        help="download and validate local plate detection and OCR models",
+    )
+    prepare_parser.add_argument(
+        "--force", action="store_true", help="download the plate models again"
+    )
+    image_parser = subparsers.add_parser(
+        "read-plates", help="read plates from a single image"
+    )
+    image_parser.add_argument("--input", type=Path, required=True)
+    image_parser.add_argument("--output-dir", type=Path, required=True)
+    image_parser.add_argument(
+        "--plate-format", choices=("generic", "ru"), default="generic"
+    )
+    image_parser.add_argument("--plate-min-confidence", type=float, default=0.85)
     return parser
 
 
@@ -508,9 +712,26 @@ def main() -> int:
     try:
         if args.command == "inspect":
             result = inspect_video(args.input.expanduser().resolve())
+        elif args.command == "prepare-plates":
+            result = prepare_plate_models(force=args.force)
+        elif args.command == "read-plates":
+            result = read_plate_image(
+                args.input,
+                args.output_dir,
+                args.plate_format,
+                args.plate_min_confidence,
+            )
         else:
+            options = AttributeOptions(
+                colors=args.colors,
+                plates=args.plates,
+                interval=args.attribute_interval,
+                plate_min_confidence=args.plate_min_confidence,
+                plate_min_observations=args.plate_min_observations,
+                plate_format=args.plate_format,
+            )
             config = load_config(args.config)
-            result = count_video(args.input, config, args.output_dir)
+            result = count_video(args.input, config, args.output_dir, options)
     except (TypeError, ValueError, OSError, RuntimeError, cv2.error) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 2

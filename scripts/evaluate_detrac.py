@@ -9,12 +9,13 @@ import math
 import sys
 from collections.abc import Callable
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from xml.etree import ElementTree
 
-from video_events.cli import inspect_video
-from video_events.config import CounterConfig, load_config
 from video_events.crossing import LineCrossingCounter
+
+if TYPE_CHECKING:
+    from video_events.config import CounterConfig
 
 DIRECTIONS = ("negative_to_positive", "positive_to_negative")
 
@@ -227,6 +228,11 @@ def _counts(
     false_negatives = len(expected_indexes) - true_positives
     precision = true_positives / len(predicted_indexes) if predicted_indexes else None
     recall = true_positives / len(expected_indexes) if expected_indexes else None
+    # F1 считаем из целых TP/FP/FN, чтобы округление precision/recall не влияло
+    # на результат. Для полностью пустой группы метрика не определена.
+    f1_denominator = 2 * true_positives + false_positives + false_negatives
+    f1 = 2 * true_positives / f1_denominator if f1_denominator else None
+    count_error = len(predicted_indexes) - len(expected_indexes)
     return {
         "ground_truth": len(expected_indexes),
         "predicted": len(predicted_indexes),
@@ -235,6 +241,12 @@ def _counts(
         "FN": false_negatives,
         "precision": round(precision, 3) if precision is not None else None,
         "recall": round(recall, 3) if recall is not None else None,
+        "f1": round(f1, 3) if f1 is not None else None,
+        "count_error": count_error,
+        "absolute_count_error": abs(count_error),
+        "relative_count_error": (
+            round(count_error / len(expected_indexes), 4) if expected_indexes else None
+        ),
     }
 
 
@@ -249,6 +261,11 @@ def evaluate(
     class_aliases: dict[str, str] | None = None,
 ) -> dict[str, Any]:
     """Собрать воспроизводимый отчёт по одному видео и его XML-аннотации."""
+    # Геометрию и сопоставление можно проверять без OpenCV, весов и PyTorch.
+    # Тяжёлые зависимости нужны только при оценке настоящего видео.
+    from video_events.cli import inspect_video
+    from video_events.config import load_config
+
     config = load_config(config_path)
     selected_classes = {name.casefold() for name in config.classes}
     invalid_alias_targets = {

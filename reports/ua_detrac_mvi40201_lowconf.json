@@ -12,8 +12,8 @@
     "classes": [
       "car"
     ],
-    "tolerance_s": 1.0,
-    "spatial_tolerance_px": 40.0,
+    "tolerance_s": 1,
+    "spatial_tolerance_px": 40,
     "class_aliases": {
       "van": "car"
     },
@@ -36,7 +36,11 @@
     "FP": 2,
     "FN": 16,
     "precision": 0.978,
-    "recall": 0.845
+    "recall": 0.845,
+    "f1": 0.906,
+    "count_error": -14,
+    "absolute_count_error": 14,
+    "relative_count_error": -0.1359
   },
   "by_direction": {
     "negative_to_positive": {
@@ -46,7 +50,11 @@
       "FP": 0,
       "FN": 11,
       "precision": 1.0,
-      "recall": 0.8
+      "recall": 0.8,
+      "f1": 0.889,
+      "count_error": -11,
+      "absolute_count_error": 11,
+      "relative_count_error": -0.2
     },
     "positive_to_negative": {
       "ground_truth": 48,
@@ -55,7 +63,11 @@
       "FP": 2,
       "FN": 5,
       "precision": 0.956,
-      "recall": 0.896
+      "recall": 0.896,
+      "f1": 0.925,
+      "count_error": -3,
+      "absolute_count_error": 3,
+      "relative_count_error": -0.0625
     }
   },
   "by_class_and_direction": {
@@ -66,7 +78,11 @@
       "FP": 0,
       "FN": 11,
       "precision": 1.0,
-      "recall": 0.8
+      "recall": 0.8,
+      "f1": 0.889,
+      "count_error": -11,
+      "absolute_count_error": 11,
+      "relative_count_error": -0.2
     },
     "car/positive_to_negative": {
       "ground_truth": 48,
@@ -75,7 +91,11 @@
       "FP": 2,
       "FN": 5,
       "precision": 0.956,
-      "recall": 0.896
+      "recall": 0.896,
+      "f1": 0.925,
+      "count_error": -3,
+      "absolute_count_error": 3,
+      "relative_count_error": -0.0625
     }
   },
   "missed_events": [

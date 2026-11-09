@@ -1,0 +1,11 @@
+event_id,confirmation_frame_index,crossing_frame_estimate,timestamp_s,track_id,class_name,confidence,direction,line_intersection_x_px,line_intersection_y_px,vehicle_color,color_support,color_samples,plate_text,plate_confidence,plate_support,plate_observations,plate_status
+1,12,10.2,0.68,2,car,0.82971,negative_to_positive,673.97,842.0,unknown,1.0,3,,0.0,0.0,0,not_read
+2,22,20.67,1.378,8,car,0.81473,negative_to_positive,1274.9,842.0,blue,1.0,5,MW51VSU,0.9847,0.6,3,confirmed
+3,51,49.66,3.31,3,car,0.87616,negative_to_positive,659.28,842.0,unknown,0.545,11,GX15OGJ,0.9976,1.0,11,confirmed
+4,51,49.05,3.27,23,car,0.85909,negative_to_positive,1272.97,842.0,unknown,0.636,11,,0.0,0.0,0,not_read
+5,91,88.94,5.929,4,car,0.90136,negative_to_positive,1197.96,842.0,unknown,0.684,19,,0.0,0.444,8,ambiguous
+6,105,102.88,6.859,10,car,0.86833,negative_to_positive,607.17,842.0,blue,1.0,22,,0.0,0.583,7,ambiguous
+7,124,122.12,8.141,9,car,0.81224,negative_to_positive,1284.19,842.0,unknown,0.52,25,WR02FKD,0.996,0.667,2,confirmed
+8,131,129.39,8.626,11,car,0.92473,negative_to_positive,635.11,842.0,unknown,0.667,27,,0.0,1.0,1,unconfirmed
+9,154,151.67,10.111,214,car,0.84893,negative_to_positive,668.56,842.0,blue,0.688,16,,0.0,0.0,0,not_read
+10,159,157.15,10.477,19,car,0.90247,negative_to_positive,1350.86,842.0,unknown,0.906,32,EY61NBG,0.9999,1.0,7,confirmed

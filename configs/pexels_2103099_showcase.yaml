@@ -1,0 +1,16 @@
+# Демонстрация на видео Mike Bird / Pexels 2103099, 1920×1080, 15 FPS.
+# Линия проходит через приближающиеся полосы; параметры не использованы для dev-метрик.
+model: ../models/yolo11n.pt
+device: auto
+classes:
+  - car
+  - motorcycle
+  - bus
+  - truck
+confidence_threshold: 0.25
+image_size: 960
+tracker: bytetrack.yaml
+line_deadband_px: 8
+line:
+  start: [0.22, 0.78]
+  end: [0.83, 0.78]

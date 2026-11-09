@@ -1,0 +1,108 @@
+{
+  "hardware": {
+    "measured_on": "2026-11-08",
+    "os": "Linux-7.0.0-42-generic-x86_64-with-glibc2.43",
+    "cpu": "13th Gen Intel(R) Core(TM) i7-13650HX",
+    "gpu": "NVIDIA GeForce RTX 5060 Laptop GPU",
+    "driver": "580.178.04",
+    "python": "3.12.16",
+    "torch_cuda": "12.8",
+    "packages": {
+      "torch": "2.8.0+cu128",
+      "torchvision": "0.23.0+cu128",
+      "ultralytics": "8.3.253",
+      "numpy": "1.26.4",
+      "opencv-python": "4.10.0.84",
+      "pillow": "13.0.0"
+    },
+    "ffmpeg": "ffmpeg version 8.0.1-3ubuntu2 Copyright (c) 2000-2025 the FFmpeg developers"
+  },
+  "method": "one complete CLI run per clip; no separate warmup; model loading reported separately; includes decode, inference, overlay, MP4 and H.264 encoding",
+  "weights_sha256": "0ebbc80d4a7680d14987a577cd21342b65ecfd94632bd9a8da63ae6417644ee1",
+  "runs": [
+    {
+      "sequence": "MVI_40201",
+      "config": "configs/ua_detrac_mvi40201_line_y054_lowconf.yaml",
+      "tracker": "configs/bytetrack_lowconf_buffer30.yaml",
+      "model": "yolo11n.pt",
+      "device": "0",
+      "confidence_threshold": 0.05,
+      "image_size": 640,
+      "classes": [
+        "car"
+      ],
+      "video": {
+        "width": 960,
+        "height": 540,
+        "source_fps": 25.0,
+        "output_fps": 25.0,
+        "fps_fallback_used": false,
+        "reported_frame_count": 925,
+        "processed_frame_count": 925,
+        "processed_duration_s": 37.0,
+        "codec": "h264"
+      },
+      "performance": {
+        "model_load_s": 0.023,
+        "processing_s": 13.965,
+        "end_to_end_fps_excluding_model_load": 66.237,
+        "note": "Processing time includes video decode, inference, overlay rendering, and encoding."
+      },
+      "evaluation": {
+        "ground_truth": 103,
+        "predicted": 89,
+        "TP": 87,
+        "FP": 2,
+        "FN": 16,
+        "precision": 0.978,
+        "recall": 0.845,
+        "f1": 0.906,
+        "count_error": -14,
+        "absolute_count_error": 14,
+        "relative_count_error": -0.1359
+      }
+    },
+    {
+      "sequence": "MVI_40204",
+      "config": "configs/ua_detrac_mvi40204_line_y054_lowconf.yaml",
+      "tracker": "configs/bytetrack_lowconf_buffer30.yaml",
+      "model": "yolo11n.pt",
+      "device": "0",
+      "confidence_threshold": 0.05,
+      "image_size": 640,
+      "classes": [
+        "car"
+      ],
+      "video": {
+        "width": 960,
+        "height": 540,
+        "source_fps": 25.0,
+        "output_fps": 25.0,
+        "fps_fallback_used": false,
+        "reported_frame_count": 1225,
+        "processed_frame_count": 1225,
+        "processed_duration_s": 49.0,
+        "codec": "h264"
+      },
+      "performance": {
+        "model_load_s": 0.119,
+        "processing_s": 19.059,
+        "end_to_end_fps_excluding_model_load": 64.275,
+        "note": "Processing time includes video decode, inference, overlay rendering, and encoding."
+      },
+      "evaluation": {
+        "ground_truth": 134,
+        "predicted": 117,
+        "TP": 116,
+        "FP": 1,
+        "FN": 18,
+        "precision": 0.991,
+        "recall": 0.866,
+        "f1": 0.924,
+        "count_error": -17,
+        "absolute_count_error": 17,
+        "relative_count_error": -0.1269
+      }
+    }
+  ]
+}
