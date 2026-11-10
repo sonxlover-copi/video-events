@@ -1,9 +1,8 @@
 {
-  "experiment": "vehicle-type crop classification",
+  "experiment": "vehicle type crop classifier with track-level sampling and evaluation",
   "dataset": "UA-DETRAC Train",
-  "dataset_sequences": 60,
-  "split_unit": "video sequence",
   "seed": 42,
+  "split_unit": "video sequence",
   "train_sequences": [
     "MVI_20011",
     "MVI_20032",
@@ -73,179 +72,506 @@
     "bus",
     "van"
   ],
-  "class_counts_train": {
-    "car": 2500,
-    "bus": 2500,
-    "van": 2500
-  },
-  "class_counts_validation": {
-    "car": 2500,
-    "bus": 684,
-    "van": 1147
-  },
-  "samples": {
-    "train": 7500,
-    "validation": 4331
-  },
+  "architecture": "depthwise-separable CNN, 24/40/72/96 channels",
   "input_size": [
     64,
     64
   ],
-  "model": "depthwise-separable CNN, 24/40/72/96 channels",
   "training": {
+    "examples": 7500,
+    "unique_tracks": 2267,
+    "tracks_by_class": {
+      "car": 1676,
+      "bus": 87,
+      "van": 504
+    },
+    "crop_counts_by_class": {
+      "car": 2500,
+      "bus": 2500,
+      "van": 2500
+    },
     "optimizer": "AdamW",
     "learning_rate": 0.001,
     "batch_size": 128,
     "epochs": 12,
-    "best_epoch": 7,
-    "selection_metric": "validation macro F1",
+    "selected_epoch": 8,
+    "selection_metric": "track-level validation macro F1 (mean probabilities per trajectory)",
     "history": [
       {
         "epoch": 1,
-        "train_loss": 0.683728107770284,
-        "validation_loss": 0.65032258571309,
-        "validation_accuracy": 0.7337797275456015,
-        "validation_macro_f1": 0.6982225007010324
+        "train_loss": 0.7196155051231384,
+        "validation_loss": 0.7931419141544147,
+        "crop_validation_accuracy": 0.6139459709074117,
+        "crop_validation_macro_f1": 0.5490126764257109,
+        "track_validation_accuracy": 0.673469387755102,
+        "track_validation_macro_f1": 0.4316331674460509
       },
       {
         "epoch": 2,
-        "train_loss": 0.4307143185774485,
-        "validation_loss": 0.5097309696401853,
-        "validation_accuracy": 0.7898868621565458,
-        "validation_macro_f1": 0.7742631710943826
+        "train_loss": 0.46397044086456296,
+        "validation_loss": 0.5511444081227407,
+        "crop_validation_accuracy": 0.7711844839528977,
+        "crop_validation_macro_f1": 0.7579443022617443,
+        "track_validation_accuracy": 0.8390022675736961,
+        "track_validation_macro_f1": 0.7064301371052824
       },
       {
         "epoch": 3,
-        "train_loss": 0.35897822914123534,
-        "validation_loss": 0.5177796969400545,
-        "validation_accuracy": 0.8072038790117756,
-        "validation_macro_f1": 0.7812884362054633
+        "train_loss": 0.3612224459807078,
+        "validation_loss": 0.5811982346968297,
+        "crop_validation_accuracy": 0.7494804894943431,
+        "crop_validation_macro_f1": 0.7360615596838903,
+        "track_validation_accuracy": 0.8038548752834467,
+        "track_validation_macro_f1": 0.6026633129941046
       },
       {
         "epoch": 4,
-        "train_loss": 0.32801289793650307,
-        "validation_loss": 0.5648472434624985,
-        "validation_accuracy": 0.790579542830755,
-        "validation_macro_f1": 0.7457734964957918
+        "train_loss": 0.32728277231852215,
+        "validation_loss": 0.5385413796459657,
+        "crop_validation_accuracy": 0.7781112906949896,
+        "crop_validation_macro_f1": 0.7692333967404889,
+        "track_validation_accuracy": 0.8321995464852607,
+        "track_validation_macro_f1": 0.6490391808873038
       },
       {
         "epoch": 5,
-        "train_loss": 0.2936014889717102,
-        "validation_loss": 0.5583535709575979,
-        "validation_accuracy": 0.7790348649272685,
-        "validation_macro_f1": 0.7601921362246503
+        "train_loss": 0.27926966325442,
+        "validation_loss": 0.5755361484837185,
+        "crop_validation_accuracy": 0.7834218425305934,
+        "crop_validation_macro_f1": 0.7573200825904757,
+        "track_validation_accuracy": 0.8798185941043084,
+        "track_validation_macro_f1": 0.6899555722198437
       },
       {
         "epoch": 6,
-        "train_loss": 0.26105689878463745,
-        "validation_loss": 0.55150239756905,
-        "validation_accuracy": 0.7887323943661971,
-        "validation_macro_f1": 0.7744309787930433
+        "train_loss": 0.2615801188151042,
+        "validation_loss": 0.5084479649769905,
+        "crop_validation_accuracy": 0.8044331563149388,
+        "crop_validation_macro_f1": 0.7915868744877567,
+        "track_validation_accuracy": 0.8764172335600907,
+        "track_validation_macro_f1": 0.6945588686590658
       },
       {
         "epoch": 7,
-        "train_loss": 0.24900448683102924,
-        "validation_loss": 0.4801569083661247,
-        "validation_accuracy": 0.8261371507734934,
-        "validation_macro_f1": 0.8070886067255318
+        "train_loss": 0.2340764673312505,
+        "validation_loss": 0.5501999602915646,
+        "crop_validation_accuracy": 0.7993534980374047,
+        "crop_validation_macro_f1": 0.7705049732770165,
+        "track_validation_accuracy": 0.9070294784580499,
+        "track_validation_macro_f1": 0.7365684016034755
       },
       {
         "epoch": 8,
-        "train_loss": 0.23659004373550416,
-        "validation_loss": 0.5128615890769148,
-        "validation_accuracy": 0.8060494112214269,
-        "validation_macro_f1": 0.7971775519507656
+        "train_loss": 0.22571681156158446,
+        "validation_loss": 0.48343726358163774,
+        "crop_validation_accuracy": 0.8252135765412145,
+        "crop_validation_macro_f1": 0.8041726226627057,
+        "track_validation_accuracy": 0.9183673469387755,
+        "track_validation_macro_f1": 0.7812847905176957
       },
       {
         "epoch": 9,
-        "train_loss": 0.20922908225059508,
-        "validation_loss": 0.6157847326915497,
-        "validation_accuracy": 0.7707226968367582,
-        "validation_macro_f1": 0.7474200428395807
+        "train_loss": 0.21699356961250305,
+        "validation_loss": 0.6931926734286185,
+        "crop_validation_accuracy": 0.7310090048487647,
+        "crop_validation_macro_f1": 0.7294041487136503,
+        "track_validation_accuracy": 0.7585034013605442,
+        "track_validation_macro_f1": 0.5993178072453994
       },
       {
         "epoch": 10,
-        "train_loss": 0.2077049071232478,
-        "validation_loss": 0.5590944157217039,
-        "validation_accuracy": 0.7988917109212653,
-        "validation_macro_f1": 0.7863688118991252
+        "train_loss": 0.20226588685512542,
+        "validation_loss": 0.553706476454976,
+        "crop_validation_accuracy": 0.7986608173631956,
+        "crop_validation_macro_f1": 0.7671181813621276,
+        "track_validation_accuracy": 0.8956916099773242,
+        "track_validation_macro_f1": 0.7005329609506394
       },
       {
         "epoch": 11,
-        "train_loss": 0.20000365947087606,
-        "validation_loss": 0.6262991111566442,
-        "validation_accuracy": 0.768413761256061,
-        "validation_macro_f1": 0.7624878227094039
+        "train_loss": 0.19142966241836548,
+        "validation_loss": 0.4863428823517421,
+        "crop_validation_accuracy": 0.8284460863541907,
+        "crop_validation_macro_f1": 0.8143632407235835,
+        "track_validation_accuracy": 0.9024943310657596,
+        "track_validation_macro_f1": 0.7756467342807049
       },
       {
         "epoch": 12,
-        "train_loss": 0.18734715315500894,
-        "validation_loss": 0.6686062596598995,
-        "validation_accuracy": 0.7430154698683906,
-        "validation_macro_f1": 0.7298521362969242
+        "train_loss": 0.18533651920954386,
+        "validation_loss": 0.5153427693302156,
+        "crop_validation_accuracy": 0.8148233664280766,
+        "crop_validation_macro_f1": 0.7949024773990062,
+        "track_validation_accuracy": 0.9104308390022676,
+        "track_validation_macro_f1": 0.7738338397908483
       }
     ]
   },
   "validation": {
-    "accuracy": 0.8261371507734934,
-    "macro_f1": 0.8070886067255318,
-    "per_class": [
-      {
-        "class": "car",
-        "precision": 0.8248749106504646,
-        "recall": 0.9232,
-        "f1": 0.8712721781804454
-      },
-      {
-        "class": "bus",
-        "precision": 0.8789625360230547,
-        "recall": 0.8918128654970761,
-        "f1": 0.8853410740203193
-      },
-      {
-        "class": "van",
-        "precision": 0.7866507747318237,
-        "recall": 0.5754141238012206,
-        "f1": 0.6646525679758308
-      }
-    ],
-    "confusion_matrix": [
-      [
-        2308,
-        30,
-        162
+    "sequences": 12,
+    "crop_counts_by_class": {
+      "car": 2500,
+      "bus": 684,
+      "van": 1147
+    },
+    "by_crop": {
+      "samples": 4331,
+      "accuracy": 0.8252,
+      "macro_f1": 0.8042,
+      "per_class": [
+        {
+          "class": "car",
+          "support": 2500,
+          "precision": 0.8338,
+          "recall": 0.9092,
+          "f1": 0.8699
+        },
+        {
+          "class": "bus",
+          "support": 684,
+          "precision": 0.8251,
+          "recall": 0.8757,
+          "f1": 0.8496
+        },
+        {
+          "class": "van",
+          "support": 1147,
+          "precision": 0.7986,
+          "recall": 0.612,
+          "f1": 0.693
+        }
       ],
-      [
-        57,
-        610,
-        17
-      ],
-      [
-        433,
-        54,
-        660
+      "confusion_matrix": [
+        [
+          2273,
+          69,
+          158
+        ],
+        [
+          66,
+          599,
+          19
+        ],
+        [
+          387,
+          58,
+          702
+        ]
       ]
-    ],
-    "confusion_matrix_order": [
-      "car",
-      "bus",
-      "van"
+    },
+    "by_track": {
+      "samples": 882,
+      "accuracy": 0.9184,
+      "macro_f1": 0.7813,
+      "per_class": [
+        {
+          "class": "car",
+          "support": 770,
+          "precision": 0.9546,
+          "recall": 0.9558,
+          "f1": 0.9552
+        },
+        {
+          "class": "bus",
+          "support": 19,
+          "precision": 0.6667,
+          "recall": 0.8421,
+          "f1": 0.7442
+        },
+        {
+          "class": "van",
+          "support": 93,
+          "precision": 0.6667,
+          "recall": 0.6237,
+          "f1": 0.6444
+        }
+      ],
+      "confusion_matrix": [
+        [
+          736,
+          6,
+          28
+        ],
+        [
+          2,
+          16,
+          1
+        ],
+        [
+          33,
+          2,
+          58
+        ]
+      ]
+    }
+  },
+  "error_analysis": {
+    "track_sampling": {
+      "unique_tracks": 882,
+      "tracks_with_multiple_crops": 711,
+      "crops_per_track_mean": 4.91,
+      "tracks_with_inconsistent_labels": 0,
+      "train_tracks_by_class": {
+        "car": 1676,
+        "bus": 87,
+        "van": 504
+      }
+    },
+    "majority_class_baseline_by_crop": {
+      "predicted_class": "car",
+      "samples": 4331,
+      "accuracy": 0.5772,
+      "macro_f1": 0.244,
+      "per_class": [
+        {
+          "class": "car",
+          "support": 2500,
+          "precision": 0.5772,
+          "recall": 1.0,
+          "f1": 0.732
+        },
+        {
+          "class": "bus",
+          "support": 684,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "class": "van",
+          "support": 1147,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        }
+      ],
+      "confusion_matrix": [
+        [
+          2500,
+          0,
+          0
+        ],
+        [
+          684,
+          0,
+          0
+        ],
+        [
+          1147,
+          0,
+          0
+        ]
+      ],
+      "note": "Always predicts the most common class in the balanced training sample."
+    },
+    "majority_class_baseline_by_track": {
+      "predicted_class": "car",
+      "samples": 882,
+      "accuracy": 0.873,
+      "macro_f1": 0.3107,
+      "per_class": [
+        {
+          "class": "car",
+          "support": 770,
+          "precision": 0.873,
+          "recall": 1.0,
+          "f1": 0.9322
+        },
+        {
+          "class": "bus",
+          "support": 19,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "class": "van",
+          "support": 93,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        }
+      ],
+      "confusion_matrix": [
+        [
+          770,
+          0,
+          0
+        ],
+        [
+          19,
+          0,
+          0
+        ],
+        [
+          93,
+          0,
+          0
+        ]
+      ],
+      "note": "Always predicts the most common vehicle class among unique training tracks."
+    },
+    "crop_short_side_by_size": {
+      "32-63 px": {
+        "samples": 1853,
+        "accuracy": 0.8262,
+        "macro_f1": 0.7584,
+        "per_class": [
+          {
+            "class": "car",
+            "support": 1202,
+            "precision": 0.848,
+            "recall": 0.9235,
+            "f1": 0.8841
+          },
+          {
+            "class": "bus",
+            "support": 109,
+            "precision": 0.6028,
+            "recall": 0.7798,
+            "f1": 0.68
+          },
+          {
+            "class": "van",
+            "support": 542,
+            "precision": 0.8337,
+            "recall": 0.6199,
+            "f1": 0.7111
+          }
+        ],
+        "confusion_matrix": [
+          [
+            1110,
+            30,
+            62
+          ],
+          [
+            19,
+            85,
+            5
+          ],
+          [
+            180,
+            26,
+            336
+          ]
+        ]
+      },
+      "64+ px": {
+        "samples": 1698,
+        "accuracy": 0.8127,
+        "macro_f1": 0.8009,
+        "per_class": [
+          {
+            "class": "car",
+            "support": 697,
+            "precision": 0.7724,
+            "recall": 0.8522,
+            "f1": 0.8104
+          },
+          {
+            "class": "bus",
+            "support": 566,
+            "precision": 0.8981,
+            "recall": 0.9028,
+            "f1": 0.9004
+          },
+          {
+            "class": "van",
+            "support": 435,
+            "precision": 0.7639,
+            "recall": 0.6322,
+            "f1": 0.6918
+          }
+        ],
+        "confusion_matrix": [
+          [
+            594,
+            27,
+            76
+          ],
+          [
+            46,
+            511,
+            9
+          ],
+          [
+            129,
+            31,
+            275
+          ]
+        ]
+      },
+      "20-31 px": {
+        "samples": 780,
+        "accuracy": 0.85,
+        "macro_f1": 0.5958,
+        "per_class": [
+          {
+            "class": "car",
+            "support": 601,
+            "precision": 0.8781,
+            "recall": 0.9468,
+            "f1": 0.9111
+          },
+          {
+            "class": "bus",
+            "support": 9,
+            "precision": 0.1875,
+            "recall": 0.3333,
+            "f1": 0.24
+          },
+          {
+            "class": "van",
+            "support": 170,
+            "precision": 0.7845,
+            "recall": 0.5353,
+            "f1": 0.6364
+          }
+        ],
+        "confusion_matrix": [
+          [
+            569,
+            12,
+            20
+          ],
+          [
+            1,
+            3,
+            5
+          ],
+          [
+            78,
+            1,
+            91
+          ]
+        ]
+      }
+    },
+    "largest_confusions": {
+      "car_as_bus": 69,
+      "car_as_van": 158,
+      "bus_as_car": 66,
+      "bus_as_van": 19,
+      "van_as_car": 387,
+      "van_as_bus": 58
+    },
+    "notes": [
+      "33 из 93 validation-треков van классифицированы как car.",
+      "Проверенные вручную кропы показывают несколько повторных и визуально похожих наблюдений одной машины.",
+      "Изображения и галерея ошибок оставлены локально; в отчёте сохранены только агрегаты."
     ]
   },
   "annotation_audit": {
-    "total_objects": 598281,
-    "class_counts": {
+    "objects": 598281,
+    "classes": {
       "bus": 33651,
       "car": 503853,
       "others": 3726,
       "van": 57051
     },
-    "boxes_partially_outside_frame": 49228,
-    "frame_size": [
-      960,
-      540
-    ],
-    "note": "Partially out-of-frame boxes can represent vehicles truncated by the image boundary. They are candidates for review, not automatically treated as annotation errors; training crops are clipped to the image."
+    "partially_outside_frame": 49228,
+    "note": "Частично выходящие за кадр боксы могут описывать обрезанный границей изображения транспорт; это кандидаты на ручную проверку, не автоматические ошибки."
   },
   "runtime": {
     "python": "3.12.16",
@@ -255,14 +581,14 @@
     "pillow": "13.0.0",
     "device": "NVIDIA GeForce RTX 5060 Laptop GPU"
   },
-  "checkpoint_sha256": "b4ea3221d9daf114715e33019d19f9e316f05657e0904a137aad7e242488234b",
+  "checkpoint_sha256": "d5f20245198af112a07c8e26719349923306c83cc5bc1460e5fff66d3d4bd8dd",
   "limitations": [
     "Это классификация кропов по готовым XML-боксам, а не обучение детектора.",
     "Все сцены относятся к UA-DETRAC Train; перенос на другие камеры не проверен.",
     "Разметка содержит шум и частичные перекрытия объектов.",
     "Результаты не сравнивались с коммерческим сценарием или edge-платой.",
-    "The validation scenes are reserved from UA-DETRAC Train; there is no independent external-camera test.",
-    "The experiment classifies ground-truth crops and does not evaluate detector errors or end-to-end tracking events.",
-    "The van category is specific to the UA-DETRAC taxonomy and is not a COCO class in the main counter."
+    "На validation всего 19 автобусных треков и 93 фургона, поэтому классовые метрики имеют высокую неопределённость.",
+    "Треки усредняются по нескольким кадрам; validation содержит 882 уникальных объекта, а не 4331 независимый пример.",
+    "Эксперимент классифицирует эталонные кропы и не включает ошибки детектора или трекера."
   ]
 }

@@ -1,0 +1,353 @@
+{
+  "classes": [
+    "car",
+    "bus",
+    "van"
+  ],
+  "validation_split": "UA-DETRAC Train, 12 held-out sequences",
+  "validation_by_crop": {
+    "samples": 4331,
+    "accuracy": 0.8252,
+    "macro_f1": 0.8042,
+    "per_class": [
+      {
+        "class": "car",
+        "support": 2500,
+        "precision": 0.8338,
+        "recall": 0.9092,
+        "f1": 0.8699
+      },
+      {
+        "class": "bus",
+        "support": 684,
+        "precision": 0.8251,
+        "recall": 0.8757,
+        "f1": 0.8496
+      },
+      {
+        "class": "van",
+        "support": 1147,
+        "precision": 0.7986,
+        "recall": 0.612,
+        "f1": 0.693
+      }
+    ],
+    "confusion_matrix": [
+      [
+        2273,
+        69,
+        158
+      ],
+      [
+        66,
+        599,
+        19
+      ],
+      [
+        387,
+        58,
+        702
+      ]
+    ]
+  },
+  "validation_by_track": {
+    "samples": 882,
+    "accuracy": 0.9184,
+    "macro_f1": 0.7813,
+    "per_class": [
+      {
+        "class": "car",
+        "support": 770,
+        "precision": 0.9546,
+        "recall": 0.9558,
+        "f1": 0.9552
+      },
+      {
+        "class": "bus",
+        "support": 19,
+        "precision": 0.6667,
+        "recall": 0.8421,
+        "f1": 0.7442
+      },
+      {
+        "class": "van",
+        "support": 93,
+        "precision": 0.6667,
+        "recall": 0.6237,
+        "f1": 0.6444
+      }
+    ],
+    "confusion_matrix": [
+      [
+        736,
+        6,
+        28
+      ],
+      [
+        2,
+        16,
+        1
+      ],
+      [
+        33,
+        2,
+        58
+      ]
+    ]
+  },
+  "track_sampling": {
+    "unique_tracks": 882,
+    "tracks_with_multiple_crops": 711,
+    "crops_per_track_mean": 4.91,
+    "tracks_with_inconsistent_labels": 0,
+    "train_tracks_by_class": {
+      "car": 1676,
+      "bus": 87,
+      "van": 504
+    }
+  },
+  "majority_class_baseline_by_crop": {
+    "predicted_class": "car",
+    "samples": 4331,
+    "accuracy": 0.5772,
+    "macro_f1": 0.244,
+    "per_class": [
+      {
+        "class": "car",
+        "support": 2500,
+        "precision": 0.5772,
+        "recall": 1.0,
+        "f1": 0.732
+      },
+      {
+        "class": "bus",
+        "support": 684,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      {
+        "class": "van",
+        "support": 1147,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      }
+    ],
+    "confusion_matrix": [
+      [
+        2500,
+        0,
+        0
+      ],
+      [
+        684,
+        0,
+        0
+      ],
+      [
+        1147,
+        0,
+        0
+      ]
+    ],
+    "note": "Always predicts the most common class in the balanced training sample."
+  },
+  "majority_class_baseline_by_track": {
+    "predicted_class": "car",
+    "samples": 882,
+    "accuracy": 0.873,
+    "macro_f1": 0.3107,
+    "per_class": [
+      {
+        "class": "car",
+        "support": 770,
+        "precision": 0.873,
+        "recall": 1.0,
+        "f1": 0.9322
+      },
+      {
+        "class": "bus",
+        "support": 19,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      {
+        "class": "van",
+        "support": 93,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      }
+    ],
+    "confusion_matrix": [
+      [
+        770,
+        0,
+        0
+      ],
+      [
+        19,
+        0,
+        0
+      ],
+      [
+        93,
+        0,
+        0
+      ]
+    ],
+    "note": "Always predicts the most common vehicle class among unique training tracks."
+  },
+  "crop_short_side_by_size": {
+    "32-63 px": {
+      "samples": 1853,
+      "accuracy": 0.8262,
+      "macro_f1": 0.7584,
+      "per_class": [
+        {
+          "class": "car",
+          "support": 1202,
+          "precision": 0.848,
+          "recall": 0.9235,
+          "f1": 0.8841
+        },
+        {
+          "class": "bus",
+          "support": 109,
+          "precision": 0.6028,
+          "recall": 0.7798,
+          "f1": 0.68
+        },
+        {
+          "class": "van",
+          "support": 542,
+          "precision": 0.8337,
+          "recall": 0.6199,
+          "f1": 0.7111
+        }
+      ],
+      "confusion_matrix": [
+        [
+          1110,
+          30,
+          62
+        ],
+        [
+          19,
+          85,
+          5
+        ],
+        [
+          180,
+          26,
+          336
+        ]
+      ]
+    },
+    "64+ px": {
+      "samples": 1698,
+      "accuracy": 0.8127,
+      "macro_f1": 0.8009,
+      "per_class": [
+        {
+          "class": "car",
+          "support": 697,
+          "precision": 0.7724,
+          "recall": 0.8522,
+          "f1": 0.8104
+        },
+        {
+          "class": "bus",
+          "support": 566,
+          "precision": 0.8981,
+          "recall": 0.9028,
+          "f1": 0.9004
+        },
+        {
+          "class": "van",
+          "support": 435,
+          "precision": 0.7639,
+          "recall": 0.6322,
+          "f1": 0.6918
+        }
+      ],
+      "confusion_matrix": [
+        [
+          594,
+          27,
+          76
+        ],
+        [
+          46,
+          511,
+          9
+        ],
+        [
+          129,
+          31,
+          275
+        ]
+      ]
+    },
+    "20-31 px": {
+      "samples": 780,
+      "accuracy": 0.85,
+      "macro_f1": 0.5958,
+      "per_class": [
+        {
+          "class": "car",
+          "support": 601,
+          "precision": 0.8781,
+          "recall": 0.9468,
+          "f1": 0.9111
+        },
+        {
+          "class": "bus",
+          "support": 9,
+          "precision": 0.1875,
+          "recall": 0.3333,
+          "f1": 0.24
+        },
+        {
+          "class": "van",
+          "support": 170,
+          "precision": 0.7845,
+          "recall": 0.5353,
+          "f1": 0.6364
+        }
+      ],
+      "confusion_matrix": [
+        [
+          569,
+          12,
+          20
+        ],
+        [
+          1,
+          3,
+          5
+        ],
+        [
+          78,
+          1,
+          91
+        ]
+      ]
+    }
+  },
+  "largest_confusions": {
+    "car_as_bus": 69,
+    "car_as_van": 158,
+    "bus_as_car": 66,
+    "bus_as_van": 19,
+    "van_as_car": 387,
+    "van_as_bus": 58
+  },
+  "limitations": [
+    "Track-level probabilities average repeated sampled frames from one annotated trajectory.",
+    "The crops come from ground-truth boxes; detector misses and box errors are excluded.",
+    "The majority baseline is a deliberately simple reference, not a competing trained model."
+  ]
+}

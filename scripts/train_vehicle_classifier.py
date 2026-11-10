@@ -207,7 +207,18 @@ def prepare_dataset(
         audit = _audit_annotations(annotations, image_width, image_height)
         selected_sequences = training_sequences | validation_sequences
         selected_frames: dict[
-            str, dict[int, list[tuple[str, tuple[int, int, int, int]]]]
+            str,
+            dict[
+                int,
+                list[
+                    tuple[
+                        str,
+                        str,
+                        tuple[int, int, int, int],
+                        tuple[float, float, float, float],
+                    ]
+                ],
+            ],
         ] = defaultdict(dict)
         for sequence in sorted(selected_sequences):
             root = ElementTree.fromstring(annotations[sequence])
@@ -245,13 +256,24 @@ def prepare_dataset(
                     y2 = min(image_height, round(top + height))
                     if x2 - x1 < 16 or y2 - y1 < 16:
                         continue
-                    boxes.append((class_name, (x1, y1, x2, y2)))
+                    boxes.append(
+                        (
+                            class_name,
+                            target.attrib.get("id", ""),
+                            (x1, y1, x2, y2),
+                            (left, top, width, height),
+                        )
+                    )
                 selected_frames[sequence][frame_number] = boxes
 
         # Reservoir sampling ограничивает размер датасета и не отдаёт
         # преимущество ранним сценам внутри архива.
         rng = random.Random(seed)
         samples: dict[str, dict[str, list[np.ndarray]]] = {
+            "train": {name: [] for name in CLASSES},
+            "validation": {name: [] for name in CLASSES},
+        }
+        sample_metadata: dict[str, dict[str, list[dict[str, Any]]]] = {
             "train": {name: [] for name in CLASSES},
             "validation": {name: [] for name in CLASSES},
         }
@@ -278,9 +300,12 @@ def prepare_dataset(
                 frame_image = Image.open(stream).convert("RGB")
                 if frame_image.size != (image_width, image_height):
                     raise ValueError(f"Непостоянный размер кадра: {member}")
-                for class_name, (x1, y1, x2, y2) in selected_frames[sequence][
-                    frame_number
-                ]:
+                for (
+                    class_name,
+                    target_id,
+                    (x1, y1, x2, y2),
+                    original_box,
+                ) in selected_frames[sequence][frame_number]:
                     split_name = (
                         "train" if sequence in training_sequences else "validation"
                     )
@@ -293,21 +318,33 @@ def prepare_dataset(
                         ),
                         dtype=np.uint8,
                     )
+                    metadata = {
+                        "sequence": sequence,
+                        "frame": frame_number,
+                        "target_id": target_id,
+                        "bbox": [round(value, 2) for value in original_box],
+                    }
                     if len(bucket) < max_per_class:
                         bucket.append(crop)
+                        sample_metadata[split_name][class_name].append(metadata)
                     else:
                         replacement = rng.randrange(seen[key])
                         if replacement < max_per_class:
                             bucket[replacement] = crop
+                            sample_metadata[split_name][class_name][replacement] = (
+                                metadata
+                            )
 
     arrays: dict[str, np.ndarray] = {}
     split_summary: dict[str, dict[str, int]] = {}
     for split_name, class_samples in samples.items():
         images_list: list[np.ndarray] = []
         labels: list[int] = []
+        metadata_list: list[dict[str, Any]] = []
         for label, class_name in enumerate(CLASSES):
             images_list.extend(class_samples[class_name])
             labels.extend([label] * len(class_samples[class_name]))
+            metadata_list.extend(sample_metadata[split_name][class_name])
         if not images_list or any(not class_samples[name] for name in CLASSES):
             raise ValueError(
                 f"После фильтрации в {split_name} не хватает примеров одного из классов"
@@ -319,6 +356,9 @@ def prepare_dataset(
         )
         arrays[f"{split_name}_labels"] = np.asarray(
             [labels[index] for index in order], dtype=np.int64
+        )
+        arrays[f"{split_name}_metadata"] = np.asarray(
+            [json.dumps(metadata_list[index], ensure_ascii=False) for index in order]
         )
         split_summary[split_name] = {
             class_name: len(class_samples[class_name]) for class_name in CLASSES
@@ -403,6 +443,72 @@ def _build_model(torch: Any) -> Any:
     return VehicleTypeClassifier()
 
 
+def _group_tracks(metadata_values: np.ndarray) -> dict[tuple[str, str], list[int]]:
+    """Сгруппировать повторные кадры одной размеченной траектории."""
+    groups: dict[tuple[str, str], list[int]] = defaultdict(list)
+    for index, value in enumerate(metadata_values):
+        item = json.loads(value)
+        groups[(item["sequence"], str(item["target_id"]))].append(index)
+    return groups
+
+
+def _confusion_matrix(labels: np.ndarray, predictions: np.ndarray) -> np.ndarray:
+    """Собрать матрицу ошибок в порядке классов, заданном в начале файла."""
+    confusion = np.zeros((len(CLASSES), len(CLASSES)), dtype=np.int64)
+    np.add.at(confusion, (labels, predictions), 1)
+    return confusion
+
+
+def _track_confusion_matrix(
+    labels: np.ndarray,
+    probabilities: np.ndarray,
+    groups: dict[tuple[str, str], list[int]],
+) -> np.ndarray:
+    """Дать каждой траектории один голос после усреднения её кадров."""
+    track_labels = []
+    track_predictions = []
+    for indexes in groups.values():
+        expected_classes = set(labels[indexes].tolist())
+        if len(expected_classes) != 1:
+            raise ValueError("Один track_id содержит разные XML-классы")
+        track_labels.append(expected_classes.pop())
+        track_predictions.append(int(probabilities[indexes].mean(axis=0).argmax()))
+    return _confusion_matrix(
+        np.asarray(track_labels, dtype=np.int64),
+        np.asarray(track_predictions, dtype=np.int64),
+    )
+
+
+def _metric_summary(confusion: np.ndarray) -> dict[str, Any]:
+    """Посчитать accuracy и macro F1 для выбора эпохи и финального отчёта."""
+    per_class = []
+    for index, class_name in enumerate(CLASSES):
+        true_positive = int(confusion[index, index])
+        predicted = int(confusion[:, index].sum())
+        expected = int(confusion[index, :].sum())
+        precision = true_positive / predicted if predicted else 0.0
+        recall = true_positive / expected if expected else 0.0
+        f1 = (
+            2 * precision * recall / (precision + recall) if precision + recall else 0.0
+        )
+        per_class.append(
+            {
+                "class": class_name,
+                "precision": precision,
+                "recall": recall,
+                "f1": f1,
+            }
+        )
+    total = int(confusion.sum())
+    return {
+        "samples": total,
+        "accuracy": float(np.trace(confusion) / total) if total else None,
+        "macro_f1": float(np.mean([item["f1"] for item in per_class])),
+        "per_class": per_class,
+        "confusion_matrix": confusion.tolist(),
+    }
+
+
 def train_model(
     dataset_path: Path,
     output_dir: Path,
@@ -436,8 +542,25 @@ def train_model(
 
     train_images, train_labels = make_tensors("train")
     validation_images, validation_labels = make_tensors("validation")
+    required_metadata = {"train_metadata", "validation_metadata"}
+    if not required_metadata.issubset(data.files):
+        raise ValueError("Датасет не содержит track metadata; повтори prepare")
+    train_groups = _group_tracks(data["train_metadata"])
+    validation_groups = _group_tracks(data["validation_metadata"])
     class_counts = torch.bincount(train_labels, minlength=len(CLASSES)).float()
-    weights = (1.0 / class_counts)[train_labels]
+    train_labels_numpy = train_labels.numpy()
+    tracks_by_class = np.zeros(len(CLASSES), dtype=np.int64)
+    for indexes in train_groups.values():
+        track_class = int(train_labels_numpy[indexes[0]])
+        if any(train_labels_numpy[index] != track_class for index in indexes):
+            raise ValueError("Один train track содержит разные XML-классы")
+        tracks_by_class[track_class] += 1
+    sample_weights = np.zeros(len(train_labels_numpy), dtype=np.float64)
+    for indexes in train_groups.values():
+        track_class = int(train_labels_numpy[indexes[0]])
+        per_sample_weight = 1.0 / (tracks_by_class[track_class] * len(indexes))
+        sample_weights[indexes] = per_sample_weight
+    weights = torch.as_tensor(sample_weights, dtype=torch.double)
     sampler = WeightedRandomSampler(weights, num_samples=len(weights), replacement=True)
     train_loader = DataLoader(
         TensorDataset(train_images, train_labels),
@@ -487,53 +610,36 @@ def train_model(
             train_loss += loss.item() * len(labels)
 
         model.eval()
-        confusion = np.zeros((len(CLASSES), len(CLASSES)), dtype=np.int64)
         validation_loss = 0.0
+        probability_batches = []
         with torch.inference_mode():
             for images, labels in validation_loader:
                 images = images.to(device, non_blocking=True)
                 labels = labels.to(device, non_blocking=True)
                 logits = model(images)
                 validation_loss += F.cross_entropy(logits, labels).item() * len(labels)
-                predictions = logits.argmax(dim=1)
-                for expected, predicted in zip(
-                    labels.cpu().tolist(), predictions.cpu().tolist(), strict=True
-                ):
-                    confusion[expected, predicted] += 1
-
-        per_class = []
-        for class_index, class_name in enumerate(CLASSES):
-            tp = int(confusion[class_index, class_index])
-            precision = (
-                tp / int(confusion[:, class_index].sum())
-                if confusion[:, class_index].sum()
-                else 0.0
-            )
-            recall = (
-                tp / int(confusion[class_index, :].sum())
-                if confusion[class_index, :].sum()
-                else 0.0
-            )
-            f1 = (
-                2 * precision * recall / (precision + recall)
-                if precision + recall
-                else 0.0
-            )
-            per_class.append(
-                {
-                    "class": class_name,
-                    "precision": precision,
-                    "recall": recall,
-                    "f1": f1,
-                }
-            )
-        macro_f1 = float(np.mean([item["f1"] for item in per_class]))
+                probability_batches.append(logits.softmax(dim=1).cpu().numpy())
+        validation_probabilities = np.concatenate(probability_batches)
+        validation_label_values = validation_labels.numpy()
+        crop_confusion = _confusion_matrix(
+            validation_label_values, validation_probabilities.argmax(axis=1)
+        )
+        track_confusion = _track_confusion_matrix(
+            validation_label_values, validation_probabilities, validation_groups
+        )
+        crop_metrics = _metric_summary(crop_confusion)
+        track_metrics = _metric_summary(track_confusion)
+        # При подборе эпохи каждая машина имеет один голос вне зависимости от
+        # числа кадров, на которых она присутствует в разметке.
+        macro_f1 = track_metrics["macro_f1"]
         epoch_result = {
             "epoch": epoch,
             "train_loss": train_loss / len(train_images),
             "validation_loss": validation_loss / len(validation_images),
-            "validation_accuracy": float(np.trace(confusion) / confusion.sum()),
-            "validation_macro_f1": macro_f1,
+            "crop_validation_accuracy": crop_metrics["accuracy"],
+            "crop_validation_macro_f1": crop_metrics["macro_f1"],
+            "track_validation_accuracy": track_metrics["accuracy"],
+            "track_validation_macro_f1": macro_f1,
         }
         history.append(epoch_result)
         print(json.dumps(epoch_result, ensure_ascii=False))
@@ -549,37 +655,21 @@ def train_model(
         raise RuntimeError("Обучение не сохранило ни одной модели")
     model.load_state_dict(best_state)
     model.eval()
-    final_confusion = np.zeros((len(CLASSES), len(CLASSES)), dtype=np.int64)
+    probability_batches = []
     with torch.inference_mode():
         for images, labels in validation_loader:
-            predictions = model(images.to(device)).argmax(dim=1).cpu()
-            for expected, predicted in zip(
-                labels.tolist(), predictions.tolist(), strict=True
-            ):
-                final_confusion[expected, predicted] += 1
-    per_class = []
-    for index, class_name in enumerate(CLASSES):
-        tp = int(final_confusion[index, index])
-        precision = (
-            tp / int(final_confusion[:, index].sum())
-            if final_confusion[:, index].sum()
-            else 0.0
-        )
-        recall = (
-            tp / int(final_confusion[index, :].sum())
-            if final_confusion[index, :].sum()
-            else 0.0
-        )
-        per_class.append(
-            {
-                "class": class_name,
-                "precision": precision,
-                "recall": recall,
-                "f1": 2 * precision * recall / (precision + recall)
-                if precision + recall
-                else 0.0,
-            }
-        )
+            logits = model(images.to(device))
+            probability_batches.append(logits.softmax(dim=1).cpu().numpy())
+    validation_probabilities = np.concatenate(probability_batches)
+    validation_label_values = validation_labels.numpy()
+    crop_confusion = _confusion_matrix(
+        validation_label_values, validation_probabilities.argmax(axis=1)
+    )
+    track_confusion = _track_confusion_matrix(
+        validation_label_values, validation_probabilities, validation_groups
+    )
+    crop_metrics = _metric_summary(crop_confusion)
+    track_metrics = _metric_summary(track_confusion)
 
     output_dir.mkdir(parents=True, exist_ok=True)
     checkpoint_path = output_dir / "vehicle_type_classifier.pt"
@@ -590,7 +680,7 @@ def train_model(
             "image_size": IMAGE_SIZE,
             "architecture": "depthwise-separable CNN, 24/40/72/96 channels",
             "seed": seed,
-            "best_validation_macro_f1": best_macro_f1,
+            "best_track_validation_macro_f1": best_macro_f1,
         },
         checkpoint_path,
     )
@@ -607,6 +697,11 @@ def train_model(
         "input_size": [IMAGE_SIZE, IMAGE_SIZE],
         "training_examples": len(train_images),
         "validation_examples": len(validation_images),
+        "training_tracks": len(train_groups),
+        "validation_tracks": len(validation_groups),
+        "training_tracks_by_class": dict(
+            zip(CLASSES, tracks_by_class.tolist(), strict=True)
+        ),
         "class_counts_train": dict(
             zip(CLASSES, class_counts.int().tolist(), strict=True)
         ),
@@ -623,11 +718,10 @@ def train_model(
         "batch_size": batch_size,
         "epochs": epochs,
         "best_epoch": best_epoch,
-        "selection_metric": "validation macro F1",
+        "selection_metric": "track-level validation macro F1 (mean probabilities per trajectory)",
         "best_validation_macro_f1": best_macro_f1,
-        "validation_accuracy": float(np.trace(final_confusion) / final_confusion.sum()),
-        "confusion_matrix": final_confusion.tolist(),
-        "per_class": per_class,
+        "validation_by_crop": crop_metrics,
+        "validation_by_track": track_metrics,
         "history": history,
         "checkpoint": str(checkpoint_path),
         "limitations": [
